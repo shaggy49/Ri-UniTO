@@ -45,7 +45,7 @@ public class DAO {
         try {
             connection = DriverManager.getConnection(url1, user, password);
             if (connection != null) {
-                System.out.println("Connected to the database test");
+                System.out.println("Connected to the database");
             }
 
             String query = "SELECT * FROM `reservation_available`";
