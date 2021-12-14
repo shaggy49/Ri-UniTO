@@ -6,6 +6,16 @@
     <context-param>
         <description>URL database</description>
         <param-name>url</param-name>
-        <param-value>jdbc:sqlite:reservations.db</param-value>
+        <param-value>jdbc:mysql://127.0.0.1:8889/tweb_reservations</param-value> <!--cambiare in base al sistema operativo-->
+    </context-param>
+
+    <context-param>
+        <param-name>user</param-name>
+        <param-value>root</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>password</param-name>
+        <param-value>root</param-value>
     </context-param>
 </web-app>
