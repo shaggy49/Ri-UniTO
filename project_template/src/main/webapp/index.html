@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <title>Servlet prova</title>
+</head>
+<body>
+    <h1>Accedi</h1>
+    <form method="post">
+        <label for="account">Account:</label>
+        <input id="account" type="text" required><br>
+        <label for="password">Password:</label>
+        <input id="password" type="password" required><br>
+        <input type="button" id="auth-submit" name="auth-submit" value="Accedi">
+    </form>
+
+    <div id="auth-result"></div>
+
+    <h1>Inserisci il nome del corso di cui vuoi vedere i docenti disponibili:</h1>
+    <form method="get">
+        <label>
+            <input type="text" id="docente">
+        </label><br><br>
+        <input type="button" id="show-submit" name="show-submit" value="Mostra">
+    </form>
+
+    <div id="show-result"></div>
+
+    <h1>Inserisci un docente:</h1>
+    <h4>Soltanto gli admin possono inserire docenti!</h4>
+    <form method="post">
+        <label for="name">Nome:</label>
+        <input id="name" type="text" required><br>
+        <label for="surname">Cognome:</label>
+        <input id="surname" type="text" required><br>
+        <input type="button" id="insert-submit" name="insert-submit" value="Inserisci">
+    </form>
+
+    <div id="insert-result"></div>
+
+    <br>
+
+    <h1>Parte giocattolo per vedere se funziona Vue.js</h1>
+
+    <div id="app">
+        <p> Login: <input v-model="account" type="text"> </p>
+        <button v-on:click="getInfo">OK</button>
+        <p>JSessionID: {{ sessione }}</p>
+        <p>Controllo sessione: {{ altreInfo }}</p>
+    </div>
+
+    <script>
+        var app = new Vue ({
+            el: '#app',
+            data: {
+                sessione:'sessione inesistente',
+                altreInfo:'---',
+                account:  'guest',
+                link :    'ServletSessions'
+            },
+            methods:{
+                getInfo:function(){
+                    var self = this;
+                    if (self.sessione==='sessione inesistente')
+                        $.post(this.link, {utente: this.account}, function (data) {
+                            self.sessione = data;
+                        });
+                    else
+                        $.post(this.link, {utente: this.account, sessione: this.sessione},
+                            function (data) {
+                                self.altreInfo = data;
+                            });
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
