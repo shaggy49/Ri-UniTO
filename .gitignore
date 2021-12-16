@@ -240,3 +240,6 @@ buildNumber.properties
 
 #configuration to DB
 src/main/webapp/WEB-INF/web.xml
+pom.xml
+
+project_template/src/main/webapp/WEB-INF/web.xml
