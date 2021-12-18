@@ -1,6 +1,5 @@
 package com.reservation.application.entities;
 
-import java.util.Objects;
 
 public class ReservationRequested {
     private int id;
@@ -11,7 +10,7 @@ public class ReservationRequested {
     private String rTime;
     private String status;
 
-    public ReservationRequested(int idTeacher, int idUser, int idCourse, String rDate, String rTime, Status status) {
+    public ReservationRequested(int idTeacher, int idUser, int idCourse, String rDate, String rTime, String status) {
         this.idUser = idTeacher;
         this.idCourse = idCourse;
         this.rDate = rDate;

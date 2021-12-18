@@ -1,9 +1,6 @@
 package com.reservation.application.entities;
 
-import java.util.Objects;
-
 public class ReservationAvailable {
-    private int id;
     private int idTeacher;
     private int idCourse;
     private String date;
@@ -14,10 +11,6 @@ public class ReservationAvailable {
         this.idCourse = idCourse;
         this.date = date;
         this.time = time;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public int getIdTeacher() {
@@ -39,20 +32,12 @@ public class ReservationAvailable {
     @Override
     public String toString() {
         return "ReservationAvailable{" +
-                "id=" + id +
-                ", idTeacher=" + idTeacher +
+                " idTeacher=" + idTeacher +
                 ", idCourse=" + idCourse +
                 ", date=" + date +
                 ", time='" + time + '\'' +
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ReservationAvailable that = (ReservationAvailable) o;
-        return id == that.id;
-    }
 }
 
