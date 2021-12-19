@@ -1,5 +1,6 @@
 package com.reservation.application.servlets;
 
+import com.google.gson.Gson;
 import com.reservation.application.dao.DAO;
 import com.reservation.application.entities.ReservationAvailable;
 
@@ -29,54 +30,51 @@ public class AvailableReservationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        /* todo: restituire una stringa json invece che stampe html
+        /* fixme: remove this comment
         * non va bene stampare la lista tramite html: più che altro non ha senso
         * quello che servirà al frontend saranno proprio gli oggetti per poterli manipolare e "trasformare"
         * graficamente, occorre quindi per forza di cose trasformare questa lista di oggetti prelevata dal db in un
         * oggetto JSON, che verrà poi "spacchettato" a livello di frontend (web o android che sia).
         * */
-        response.setContentType("text/html");
-        List<ReservationAvailable> availableReservations = DAO.getAvailableReservations();
+        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
-        out.println("<html><head><title>test</title></head><body>");
-        out.println("<p> Lista prelevata dal db!<p>");
-        for (ReservationAvailable reservation : availableReservations) {
-            out.println(String.format("<p>%s</p>", reservation));
-        }
-        out.println("</body></html>");
+        List<ReservationAvailable> availableReservations = DAO.getAvailableReservations();
+        Gson gson = new Gson();
+        String availableReservationsJSON = gson.toJson(availableReservations);
+        out.println(availableReservationsJSON);
         out.flush();
         out.close();
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html");
-        /* todo: cambiare la risposta in semplice testo
+        response.setContentType("text/plain");
+        /* fixme: remove this comment
         * non va bene rispondere impostando il tipo di contenuto come text di tipo html
         * perché questi endpoint diventano difficili da gestire da android se il testo restituito è un html
         * */
         PrintWriter out = response.getWriter();
-        out.println("<html><head><title>test</title></head><body>");
         try{
+            //passaggio di parametri come query params, se si vuol usare il body delle post: https://stackoverflow.com/questions/14525982/getting-request-payload-from-post-request-in-java-servlet
             int idReservationAvailable = Integer.parseInt(request.getParameter("idReservationAvailable"));
             int idUser = Integer.parseInt(request.getParameter("idUser"));
             DAO.bookRequestedReservation(idReservationAvailable, idUser);
-            out.println("<p> Trasformazione eseguita</p>");
+            out.println("Trasformazione eseguita");
         }
         catch (SQLException e){
-            String errorMessage = e.getMessage();
-            //todo: tradurre errori di vincolo unique di resReq (tokenizzando la stringa 'errorMessage'):
-            //vedere errori su Notion!
-            //caso di utente: "L'utente ha già una prenotazione attiva per quell'ora!"
-            //caso prof: "Il professore ha già una prenotazione attiva per quell'ora"
-            //Duplicate entry '4-lun-18' for key 'id_teacher'
-            //Duplicate entry '2-mar-15-booked' for key 'id_user'
-            out.println(String.format("<p> Trasformazione non eseguita, errore: %s</p>", e.getMessage()));
+            String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));;
+            String messageToPrint = "";
+            if(errorMessage.equals("teacherunique"))
+                messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
+            else if (errorMessage.equals("userunique"))
+                messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
+            else
+                messageToPrint = e.getMessage();
+            out.println(messageToPrint);
         }
         catch (NumberFormatException e) {
-            out.println("<p> You pass a not valid number! </p>");
+            out.println("Devi inserire un numero valido");
         }
-        out.println("</body></html>");
         out.flush();
         out.close();
     }

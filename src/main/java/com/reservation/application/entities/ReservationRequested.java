@@ -2,7 +2,6 @@ package com.reservation.application.entities;
 
 
 public class ReservationRequested {
-    private int id;
     private int idUser;
     private int idTeacher;
     private int idCourse;
@@ -18,9 +17,6 @@ public class ReservationRequested {
         this.status = status;
     }
 
-    public int getId() {
-        return id;
-    }
 
     public int getIdUser() {
         return idUser;
@@ -49,22 +45,13 @@ public class ReservationRequested {
     @Override
     public String toString() {
         return "ReservationRequested{" +
-                "id=" + id +
-                ", idUser=" + idUser +
+                " idUser=" + idUser +
                 ", idTeacher=" + idTeacher +
                 ", idCourse=" + idCourse +
                 ", rDate=" + rDate +
                 ", rTime='" + rTime + '\'' +
                 ", status=" + status +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ReservationRequested that = (ReservationRequested) o;
-        return id == that.id;
     }
 
 }
