@@ -16,6 +16,7 @@ public class ReservationRequested {
         this.idCourse = idCourse;
         this.rDate = rDate;
         this.rTime = rTime;
+        this.status = status;
     }
 
     public int getId() {

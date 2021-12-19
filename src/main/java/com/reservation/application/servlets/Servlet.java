@@ -11,7 +11,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet(name = "Servlet", value = "/Servlet")
-public class AvailableReservationsGET extends HttpServlet {
+public class Servlet extends HttpServlet {
 
     public void init(ServletConfig config) {
         try {
@@ -33,8 +33,8 @@ public class AvailableReservationsGET extends HttpServlet {
         List<ReservationAvailable> availableReservations = DAO.getAvailableReservations();
         PrintWriter out = response.getWriter();
         out.println("<html><head><title>test</title></head><body>");
-        out.println("<p> Lista prelevata dal db!<p>");
         for (ReservationAvailable reservation : availableReservations) {
+            out.println("<p> Lista prelevata dal db!<p>");
             out.println(String.format("<p>%s</p>", reservation));
         }
         out.println("</body></html>");
@@ -42,4 +42,8 @@ public class AvailableReservationsGET extends HttpServlet {
         out.close();
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
 }

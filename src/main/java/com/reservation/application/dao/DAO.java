@@ -1,7 +1,6 @@
 package com.reservation.application.dao;
 
 import com.reservation.application.entities.ReservationAvailable;
-import com.reservation.application.entities.ReservationRequested;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -38,9 +37,8 @@ public class DAO {
 //removeStudent(int id_course)
 //getUserRole(String email, String password) lo mette in sessione utente
 
-    //TODO fare in modo di stampare il nome del teahcer e del corso al posto dell'id
+//TODO fare in modo di stampare il nome del teahcer e del corso al posto dell'id
     public static List<ReservationAvailable> getAvailableReservations() {
-        System.out.println("eccomi");
         Connection connection = null;
         ArrayList<ReservationAvailable> out = new ArrayList<>();
         try {
@@ -60,7 +58,7 @@ public class DAO {
                         Integer.parseInt(rs.getString("id_course")),
                         rs.getString("date"),
                         rs.getString("time")
-                );
+                ) ;
 
                 out.add(reservationAvailable);
             }
@@ -78,31 +76,29 @@ public class DAO {
         return out;
     }
 
-    public static List<ReservationRequested> getRequestedReservations() {
+    /*public static List<ReservationRequested> getRequestedReservations() {
         Connection connection = null;
-        ArrayList<ReservationRequested> out = new ArrayList<>();
+        ArrayList<ReservationAvailable> out = new ArrayList<>();
         try {
             connection = DriverManager.getConnection(url1, user, password);
             if (connection != null) {
                 System.out.println("Connected to the database test");
             }
 
-            String query = "SELECT * FROM `reservation_requested`";
+            String query = "SELECT * FROM `reservation_available`";
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             while (rs.next()) {
 
-                ReservationRequested reservationRequested = new ReservationRequested(Integer.parseInt(
-                        rs.getString("id_user")),
-                        Integer.parseInt(rs.getString("id_teacher")),
+                ReservationAvailable reservationAvailable = new ReservationAvailable(Integer.parseInt(
+                        rs.getString("id_teacher")),
                         Integer.parseInt(rs.getString("id_course")),
-                        rs.getString("rdate"),
-                        rs.getString("rtime"),
-                        rs.getString("status")
-                );
+                        rs.getString("date"),
+                        rs.getString("time")
+                ) ;
 
-                out.add(reservationRequested);
+                out.add(reservationAvailable);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -116,57 +112,7 @@ public class DAO {
             }
         }
         return out;
-    }
-
-    /**
-     * Preleva, grazie all'id passato come primo parametro, gli attributi da caricare nella relazione requested,
-     * cancella la tupla X dalla relazione available e aggiunge una tupla Y alla relazione requested con
-     * l'aggiunta dell'id_user, modificando lo state in prenotata
-     */
-    public static void bookRequestedReservation(int id_reservationAvailable, int id_user) throws SQLException{
-        Connection connection = null;
-        connection = DriverManager.getConnection(url1, user, password);
-        int count = 0;
-        if (connection != null) {
-            System.out.println("Connected to the database test");
-        }
-
-        String queryFromResAvailable = String.format("SELECT `id_teacher`, `id_course`, `date`, `time` FROM `reservation_available` WHERE id = %d;", id_reservationAvailable);
-        String queryDeleteResAvailable = String.format("DELETE FROM `reservation_available` WHERE id = %d;", id_reservationAvailable);
-        String insertToResRequested = "";
-        Statement st = connection.createStatement();
-        Statement stDML = connection.createStatement();
-        ResultSet rsReservationAvailable = st.executeQuery(queryFromResAvailable);
-        
-        while (rsReservationAvailable.next()) {
-            count++;
-            insertToResRequested = String.format("INSERT INTO `reservation_requested`(`id_user`, `id_teacher`, `id_course`, `rdate`, `rtime`, `status`) VALUES (%d,%d,%d,'%s','%s','%s')",
-                id_user,
-                Integer.parseInt(rsReservationAvailable.getString("id_teacher")),  
-                Integer.parseInt(rsReservationAvailable.getString("id_course")), 
-                rsReservationAvailable.getString("date"),
-                rsReservationAvailable.getString("time"),
-                "booked");
-        }
-        
-        if(count == 0){
-            connection.close();
-            throw new SQLException("Invalid row selection");
-        }
-
-        if (stDML.executeUpdate(insertToResRequested) != 0)
-            System.out.println("La tupla è stata inserita nella tabella reservation requested!");
-        else{
-            connection.close();
-            throw new SQLException();
-        }
-        if (stDML.executeUpdate(queryDeleteResAvailable) != 0)
-            System.out.println("La tupla è stata eliminata dalla tabella reservation available!");
-        
-        if (connection != null) {
-            connection.close();
-        }
-    }
+    }*/
 
     /*public static int getUserId(String account, String pw) {
         Connection conn1 = null;
