@@ -27,7 +27,7 @@ public class DAO {
 // METHODS TO DEVELOP:
 //DONE-getAvailableReservations() → prende tutte le ripetizioni disponibili (serve al guest)
 //DONE-bookRequestedReservation(int id_reservationAvailable, int id_user) → preleva grazie all'id passato come primo parametro gli attributi da caricare nella relazione requested, cancella la tupla X dalla relazione available e aggiunge una tupla Y alla relazione requested con l'aggiunta dell'id_user, modificando lo state in *prenotata*
-//setReservationState(int id_reservationRequested, State stateToUpdate) → selezionare una ripetizione dalla tabella di requested, marcarla come disdetta (modificare lo stato in deleted), state è un enum che può valere: *disdetta/completata*
+//TO-TEST-setReservationState(int id_reservationRequested, String stateToUpdate) → selezionare una ripetizione dalla tabella di requested, marcarla come disdetta (modificare lo stato in deleted), state è un enum che può valere: *disdetta/completata*
 //getRequestedReservations(int id_user) → prende tutte le ripetizioni della tabella requested dello user passato come parametro, con tutte si intende con qualunque tipo di stato
 //getRequestedReservations( ) → prende tutte le ripetizioni dalla tabella requested
 //insertCourse(String title)
@@ -165,6 +165,31 @@ public class DAO {
         if (connection != null) {
             connection.close();
         }
+    }
+
+    public static void setReservationState(int idReservationRequested, String stateToUpdate) throws SQLException {
+        Connection connection = null;
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
+
+        String queryFromResRequested = String.format("SELECT `id_teacher`, `id_course`, `date`, `time` FROM `reservation_requested` WHERE id = %d;", idReservationRequested);
+        String queryUpdateResRequested = String.format("UPDATE reservation_requested SET status = '%s' WHERE id = %d;", stateToUpdate, idReservationRequested);
+
+        Statement st = connection.createStatement();
+
+        if (st.executeUpdate(queryUpdateResRequested) != 0)
+            System.out.println("Lo stato della prenotazione è stato correttamente modificato!");
+        else{
+            connection.close();
+            throw new SQLException();
+        }
+
+        if (connection != null) {
+            connection.close();
+        }
+
     }
 
     /*public static int getUserId(String account, String pw) {
