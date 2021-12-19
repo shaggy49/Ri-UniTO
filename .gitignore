@@ -235,5 +235,3 @@ buildNumber.properties
 # Support for Project snippet scope
 !.vscode/*.code-snippets
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,intellij,intellij+all,java,maven
-!apache-tomcat-9.0.54/*

@@ -1,6 +1,5 @@
 package com.reservation.application.entities;
 
-import java.util.Objects;
 
 public class ReservationRequested {
     private int id;
