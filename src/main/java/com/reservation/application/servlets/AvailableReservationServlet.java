@@ -51,7 +51,7 @@ public class AvailableReservationServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         /* fixme: remove this comment
          * non va bene rispondere impostando il tipo di contenuto come text di tipo html
@@ -65,14 +65,18 @@ public class AvailableReservationServlet extends HttpServlet {
             DAO.bookRequestedReservation(idReservationAvailable, idUser);
             out.println("Trasformazione eseguita");
         } catch (SQLException e) {
-            String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));
             String messageToPrint = "";
-            if (errorMessage.equals("teacherunique"))
-                messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
-            else if (errorMessage.equals("userunique"))
-                messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
-            else
+            if(e.getMessage().equals("noresfound"))
+                messageToPrint = "La prenotazione non risulta presente";
+            else if(!e.getMessage().contains("$"))
                 messageToPrint = e.getMessage();
+            else{
+                String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));
+                if (errorMessage.equals("teacherunique"))
+                    messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
+                else if (errorMessage.equals("userunique"))
+                    messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
+            }
             out.println(messageToPrint);
         } catch (NumberFormatException e) {
             out.println("Inserire un numero valido");

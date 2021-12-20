@@ -28,15 +28,15 @@ public class DAO {
 //DONE-bookRequestedReservation(int id_reservationAvailable, int id_user) → preleva grazie all'id passato come primo parametro gli attributi da caricare nella relazione requested, cancella la tupla X dalla relazione available e aggiunge una tupla Y alla relazione requested con l'aggiunta dell'id_user, modificando lo state in *prenotata*
 //TO-TEST-setReservationState(int id_reservationRequested, String stateToUpdate) → selezionare una ripetizione dalla tabella di requested, marcarla come disdetta (modificare lo stato in deleted), state è un enum che può valere: *disdetta/completata*
 //DONE-getRequestedReservations(int id_user) → prende tutte le ripetizioni della tabella requested dello user passato come parametro, con tutte si intende con qualunque tipo di stato
-//DONE-getRequestedReservations( ) → prende tutte le ripetizioni dalla tabella requested
+//DONE-getRequestedReservations() → prende tutte le ripetizioni dalla tabella requested
 //DONE-insertCourse(String title)
 //DONE-removeCourse(int id_course)
 //DONE-insertTeacher(String name, String surname)
 //DONE-removeTeacher(int id_teacher)
 //DONE-insertUser(String name, String surname)
 //DONE-removeUser(int id_course)
-//TODO:insertAvailableReservation(int id_teacher, int id_course, String date, String time)
-//TODO:removeAvailableReservation(int id_reservationAvailable)
+//DONE-insertAvailableReservation(int id_teacher, int id_course, String date, String time)
+//DONE-removeAvailableReservation(int id_reservationAvailable)
 //DONE-getUserRole(String email, String password) lo mette in sessione utente
 
     public static List<ReservationAvailable> getAvailableReservations() {
@@ -113,7 +113,7 @@ public class DAO {
 
         if (count == 0) {
             connection.close();
-            throw new SQLException("Invalid row selection");
+            throw new SQLException("noresfound");
         }
 
         if (stDML.executeUpdate(insertToResRequested) != 0)
@@ -324,6 +324,54 @@ public class DAO {
             Statement st = connection.createStatement();
             if (st.executeUpdate(query) != 0)
                 System.out.println("Il professore con id = " + teacherId + " è stato rimosso dal database!");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e2) {
+                    System.out.println(e2.getMessage());
+                }
+            }
+        }
+    }
+
+    public static void insertAvailableReservation(int id_teacher, int id_course, String date, String time) {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(url1, user, password);
+            if (connection != null) {
+                System.out.println("Connected to the database");
+            }
+            String query = String.format("INSERT INTO reservation_available (id_teacher, id_course, date, time) VALUES (%d,%d,'%s','%s')", id_teacher, id_course, date, time);
+            Statement st = connection.createStatement();
+            if (st.executeUpdate(query) != 0)
+                System.out.println("La prenotazione è stata aggiunta al database!");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e2) {
+                    System.out.println(e2.getMessage());
+                }
+            }
+        }
+    }
+
+    public static void removeAvailableReservation(int idAvailableReservation) {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(url1, user, password);
+            if (connection != null) {
+                System.out.println("Connected to the database");
+            }
+            String query = String.format("DELETE FROM reservation_available WHERE id = %d", idAvailableReservation);
+            Statement st = connection.createStatement();
+            if (st.executeUpdate(query) != 0)
+                System.out.println("La prenotazione con id = " + idAvailableReservation + " è stato rimossa dal database!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
