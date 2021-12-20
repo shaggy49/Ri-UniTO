@@ -51,6 +51,25 @@ public class AvailableReservationServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
+        try {
+            //passaggio di parametri come query params, se si vuol usare il body delle post: https://stackoverflow.com/questions/14525982/getting-request-payload-from-post-request-in-java-servlet
+            int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
+            int idCourse = Integer.parseInt(request.getParameter("idCourse"));
+            String date = request.getParameter("date");
+            String time = request.getParameter("time");
+            DAO.insertAvailableReservation(idTeacher, idCourse, date, time);
+            out.println("Inserimento effettuato");
+        } catch (NumberFormatException e) {
+            out.println("Inserire un numero valido");
+        }
+        out.flush();
+        out.close();
+    }
+
+    @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         /* fixme: remove this comment
