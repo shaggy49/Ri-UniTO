@@ -1,24 +1,26 @@
 package com.reservation.application.entities;
 
 public class ReservationAvailable {
-    private int idTeacher;
-    private int idCourse;
+    private int id;
+    private Teacher teacher;
+    private Course course;
     private String date;
     private String time;
 
-    public ReservationAvailable(int idTeacher, int idCourse, String date, String time) {
-        this.idTeacher = idTeacher;
-        this.idCourse = idCourse;
+    public ReservationAvailable(int id, Teacher teacher, Course course, String date, String time) {
+        this.id = id;
+        this.teacher = teacher;
+        this.course = course;
         this.date = date;
         this.time = time;
     }
 
-    public int getIdTeacher() {
-        return idTeacher;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
-    public int getIdCourse() {
-        return idCourse;
+    public Course getCourse() {
+        return course;
     }
 
     public String getDate() {
@@ -32,12 +34,11 @@ public class ReservationAvailable {
     @Override
     public String toString() {
         return "ReservationAvailable{" +
-                " idTeacher=" + idTeacher +
-                ", idCourse=" + idCourse +
-                ", date=" + date +
+                "teacher=" + teacher +
+                ", course=" + course +
+                ", date='" + date + '\'' +
                 ", time='" + time + '\'' +
                 '}';
     }
-
 }
 

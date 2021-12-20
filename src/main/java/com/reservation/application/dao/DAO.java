@@ -1,7 +1,6 @@
 package com.reservation.application.dao;
 
-import com.reservation.application.entities.ReservationAvailable;
-import com.reservation.application.entities.ReservationRequested;
+import com.reservation.application.entities.*;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -36,9 +35,10 @@ public class DAO {
 //DONE-removeTeacher(int id_teacher)
 //DONE-insertUser(String name, String surname)
 //DONE-removeUser(int id_course)
+//TODO:insertAvailableReservation(int id_teacher, int id_course, String date, String time)
+//TODO:removeAvailableReservation(int id_reservationAvailable)
 //DONE-getUserRole(String email, String password) lo mette in sessione utente
 
-    //TODO fare in modo di stampare il nome del teacher e del corso al posto dell'id
     public static List<ReservationAvailable> getAvailableReservations() {
         Connection connection = null;
         ArrayList<ReservationAvailable> out = new ArrayList<>();
@@ -48,15 +48,18 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = "SELECT * FROM `reservation_available`";
+            String query = "" +
+                    "SELECT reservation_available.id as res_id, t.id as teacher_id, name, surname, c.id as course_id ,title, date, time " +
+                    "FROM reservation_available join course c on reservation_available.id_course = c.id join teacher t on t.id = reservation_available.id_teacher";
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             while (rs.next()) {
 
-                ReservationAvailable reservationAvailable = new ReservationAvailable(Integer.parseInt(
-                        rs.getString("id_teacher")),
-                        Integer.parseInt(rs.getString("id_course")),
+                ReservationAvailable reservationAvailable = new ReservationAvailable(
+                        Integer.parseInt(rs.getString("res_id")),
+                        new Teacher(Integer.parseInt(rs.getString("teacher_id")), rs.getString("name"), rs.getString("surname")),
+                        new Course(Integer.parseInt(rs.getString("course_id")), rs.getString("title")),
                         rs.getString("date"),
                         rs.getString("time")
                 );
@@ -160,16 +163,20 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = String.format("SELECT * FROM `reservation_requested` WHERE id_user = '%d'", idUser);
+            String query = String.format(
+                    "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
+                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id " +
+                    "WHERE id_user = '%d'", idUser);
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             while (rs.next()) {
 
-                ReservationRequested reservationRequested = new ReservationRequested(Integer.parseInt(
-                        rs.getString("id_user")),
-                        Integer.parseInt(rs.getString("id_teacher")),
-                        Integer.parseInt(rs.getString("id_course")),
+                ReservationRequested reservationRequested = new ReservationRequested(
+                        Integer.parseInt(rs.getString("res_id")),
+                        new User(Integer.parseInt(rs.getString("user_id")), rs.getString("email")),
+                        new Teacher(Integer.parseInt(rs.getString("teacher_id")), rs.getString("name"), rs.getString("surname")),
+                        new Course(Integer.parseInt(rs.getString("course_id")), rs.getString("title")),
                         rs.getString("rdate"),
                         rs.getString("rtime"),
                         rs.getString("status")
@@ -200,16 +207,19 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = "SELECT * FROM `reservation_requested`";
+            String query = "" +
+                    "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
+                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id;";
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             while (rs.next()) {
 
-                ReservationRequested reservationRequested = new ReservationRequested(Integer.parseInt(
-                        rs.getString("id_user")),
-                        Integer.parseInt(rs.getString("id_teacher")),
-                        Integer.parseInt(rs.getString("id_course")),
+                ReservationRequested reservationRequested = new ReservationRequested(
+                        Integer.parseInt(rs.getString("res_id")),
+                        new User(Integer.parseInt(rs.getString("user_id")), rs.getString("email")),
+                        new Teacher(Integer.parseInt(rs.getString("teacher_id")), rs.getString("name"), rs.getString("surname")),
+                        new Course(Integer.parseInt(rs.getString("course_id")), rs.getString("title")),
                         rs.getString("rdate"),
                         rs.getString("rtime"),
                         rs.getString("status")
@@ -356,39 +366,4 @@ public class DAO {
         }
         return role;
     }
-
-    /*
-
-    public static ArrayList<Docente> showDocentiForCourse(Corso course) {
-        Connection conn1 = null;
-        ArrayList<Docente> out = new ArrayList<>();
-        try {
-            conn1 = DriverManager.getConnection(url1, user, password);
-            if (conn1 != null) {
-                System.out.println("Connected to the database test");
-            }
-
-            String query = String.format("SELECT d.nome, d.cognome FROM insegnamento i join docenti d on i.docente = d.id WHERE i.corso = '%s'", course.getTitolo());
-
-            Statement st = conn1.createStatement();
-            ResultSet rs = st.executeQuery(query);
-            while (rs.next()) {
-                Docente p = new Docente(rs.getString("d.nome"), rs.getString("d.cognome"));
-                out.add(p);
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (conn1 != null) {
-                try {
-                    conn1.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
-            }
-        }
-        return out;
-    }
-
-   */
 }

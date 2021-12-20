@@ -14,6 +14,11 @@ public class User {
         this.role = role;
     }
 
+    public User(int id, String email) {
+        this.id = id;
+        this.email = email;
+    }
+
     public int getId() {
         return id;
     }
