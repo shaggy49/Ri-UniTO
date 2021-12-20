@@ -53,6 +53,25 @@ public class AvailableReservationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
+        try {
+            //passaggio di parametri come query params, se si vuol usare il body delle post: https://stackoverflow.com/questions/14525982/getting-request-payload-from-post-request-in-java-servlet
+            int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
+            int idCourse = Integer.parseInt(request.getParameter("idCourse"));
+            String date = request.getParameter("date");
+            String time = request.getParameter("time");
+            DAO.insertAvailableReservation(idTeacher, idCourse, date, time);
+            out.println("Inserimento effettuato");
+        } catch (NumberFormatException e) {
+            out.println("Inserire un numero valido");
+        }
+        out.flush();
+        out.close();
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/plain");
         /* fixme: remove this comment
          * non va bene rispondere impostando il tipo di contenuto come text di tipo html
          * perché questi endpoint diventano difficili da gestire da android se il testo restituito è un html
@@ -65,14 +84,18 @@ public class AvailableReservationServlet extends HttpServlet {
             DAO.bookRequestedReservation(idReservationAvailable, idUser);
             out.println("Trasformazione eseguita");
         } catch (SQLException e) {
-            String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));
             String messageToPrint = "";
-            if (errorMessage.equals("teacherunique"))
-                messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
-            else if (errorMessage.equals("userunique"))
-                messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
-            else
+            if(e.getMessage().equals("noresfound"))
+                messageToPrint = "La prenotazione non risulta presente";
+            else if(!e.getMessage().contains("$"))
                 messageToPrint = e.getMessage();
+            else{
+                String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));
+                if (errorMessage.equals("teacherunique"))
+                    messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
+                else if (errorMessage.equals("userunique"))
+                    messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
+            }
             out.println(messageToPrint);
         } catch (NumberFormatException e) {
             out.println("Inserire un numero valido");
