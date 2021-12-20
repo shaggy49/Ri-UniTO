@@ -2,39 +2,41 @@ package com.reservation.application.entities;
 
 
 public class ReservationRequested {
-    private int idUser;
-    private int idTeacher;
-    private int idCourse;
+    private int id;
+    private User user;
+    private Teacher teacher;
+    private Course course;
     private String rDate;
     private String rTime;
     private String status;
 
-    public ReservationRequested(int idTeacher, int idUser, int idCourse, String rDate, String rTime, String status) {
-        this.idUser = idTeacher;
-        this.idCourse = idCourse;
+    public ReservationRequested(int id, User user, Teacher teacher, Course course, String rDate, String rTime, String status) {
+        this.id = id;
+        this.user = user;
+        this.teacher = teacher;
+        this.course = course;
         this.rDate = rDate;
         this.rTime = rTime;
         this.status = status;
     }
 
-
-    public int getIdUser() {
-        return idUser;
+    public User getUser() {
+        return user;
     }
 
-    public int getIdTeacher() {
-        return idUser;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
-    public int getIdCourse() {
-        return idCourse;
+    public Course getCourse() {
+        return course;
     }
 
-    public String getDate() {
+    public String getrDate() {
         return rDate;
     }
 
-    public String getTime() {
+    public String getrTime() {
         return rTime;
     }
 
@@ -45,13 +47,12 @@ public class ReservationRequested {
     @Override
     public String toString() {
         return "ReservationRequested{" +
-                " idUser=" + idUser +
-                ", idTeacher=" + idTeacher +
-                ", idCourse=" + idCourse +
-                ", rDate=" + rDate +
+                "user=" + user +
+                ", teacher=" + teacher +
+                ", course=" + course +
+                ", rDate='" + rDate + '\'' +
                 ", rTime='" + rTime + '\'' +
-                ", status=" + status +
+                ", status='" + status + '\'' +
                 '}';
     }
-
 }
