@@ -55,7 +55,6 @@ public class AvailableReservationServlet extends HttpServlet {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
         try {
-            //passaggio di parametri come query params, se si vuol usare il body delle post: https://stackoverflow.com/questions/14525982/getting-request-payload-from-post-request-in-java-servlet
             int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
             int idCourse = Integer.parseInt(request.getParameter("idCourse"));
             String date = request.getParameter("date");
@@ -64,6 +63,9 @@ public class AvailableReservationServlet extends HttpServlet {
             out.println("Inserimento effettuato");
         } catch (NumberFormatException e) {
             out.println("Inserire un numero valido");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            out.println(e.getMessage());
         }
         out.flush();
         out.close();
@@ -78,7 +80,6 @@ public class AvailableReservationServlet extends HttpServlet {
          * */
         PrintWriter out = response.getWriter();
         try {
-            //passaggio di parametri come query params, se si vuol usare il body delle post: https://stackoverflow.com/questions/14525982/getting-request-payload-from-post-request-in-java-servlet
             int idReservationAvailable = Integer.parseInt(request.getParameter("idReservationAvailable"));
             int idUser = Integer.parseInt(request.getParameter("idUser"));
             DAO.bookRequestedReservation(idReservationAvailable, idUser);
@@ -99,6 +100,24 @@ public class AvailableReservationServlet extends HttpServlet {
             out.println(messageToPrint);
         } catch (NumberFormatException e) {
             out.println("Inserire un numero valido");
+        }
+        out.flush();
+        out.close();
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
+        try {
+            int idAvailableReservation = Integer.parseInt(request.getParameter("idAvailableReservation"));
+            DAO.removeAvailableReservation(idAvailableReservation);
+            out.println("Prenotazione rimossa");
+        } catch (NumberFormatException e) {
+            out.println("Inserire un numero valido");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            out.println(e.getMessage());
         }
         out.flush();
         out.close();

@@ -241,17 +241,26 @@ public class DAO {
         return out;
     }
 
-    public static void insertCourses(String title) {
+    public static List<Course> getCourses() {
         Connection connection = null;
+        ArrayList<Course> out = new ArrayList<>();
         try {
             connection = DriverManager.getConnection(url1, user, password);
             if (connection != null) {
                 System.out.println("Connected to the database");
             }
-            String query = String.format("INSERT INTO course(title) VALUES ('%s')", title);
+
+            String query = "SELECT * FROM course;";
+
             Statement st = connection.createStatement();
-            if (st.executeUpdate(query) != 0)
-                System.out.println(title + " è stato aggiunto al database!");
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()) {
+                Course course = new Course(
+                        Integer.parseInt(rs.getString("id")),
+                        rs.getString("title")
+                );
+                out.add(course);
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -263,19 +272,60 @@ public class DAO {
                 }
             }
         }
+        return out;
     }
 
-    public static void removeCourses(int courseId) {
+    public static void insertCourses(String title) throws SQLException{
         Connection connection = null;
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
+        String query = String.format("INSERT INTO course(title) VALUES ('%s')", title);
+        Statement st = connection.createStatement();
+        if (st.executeUpdate(query) != 0)
+            System.out.println(title + " è stato aggiunto al database!");
+        if (connection != null) {
+                connection.close();
+        }
+    }
+
+    public static void removeCourses(int courseId) throws SQLException{
+        Connection connection = null;
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
+        String query = String.format("DELETE FROM course WHERE id = %d", courseId);
+        Statement st = connection.createStatement();
+        if (st.executeUpdate(query) != 0)
+            System.out.println("Il corso con id = " + courseId + " è stato eliminato dal database!");
+        if (connection != null) {
+                connection.close();
+        }
+    }
+
+    public static List<Teacher> getTeachers() {
+        Connection connection = null;
+        ArrayList<Teacher> out = new ArrayList<>();
         try {
             connection = DriverManager.getConnection(url1, user, password);
             if (connection != null) {
                 System.out.println("Connected to the database");
             }
-            String query = String.format("DELETE FROM course WHERE id = %d", courseId);
+
+            String query = "SELECT * FROM teacher;";
+
             Statement st = connection.createStatement();
-            if (st.executeUpdate(query) != 0)
-                System.out.println("Il corso con id = " + courseId + " è stato eliminato dal database!");
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()) {
+                Teacher teacher = new Teacher(
+                        Integer.parseInt(rs.getString("id")),
+                        rs.getString("name"),
+                        rs.getString("surname")
+                );
+                out.add(teacher);
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } finally {
@@ -287,102 +337,65 @@ public class DAO {
                 }
             }
         }
+        return out;
     }
 
-    public static void insertTeacher(String name, String surname) {
+    public static void insertTeacher(String name, String surname) throws SQLException {
         Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(url1, user, password);
-            if (connection != null) {
-                System.out.println("Connected to the database");
-            }
-            String query = String.format("INSERT INTO `teacher`(`name`, `surname`) VALUES ('%s','%s')", name, surname);
-            Statement st = connection.createStatement();
-            if (st.executeUpdate(query) != 0)
-                System.out.println("Il professore è stato aggiunto al database!");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
-            }
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
+        String query = String.format("INSERT INTO `teacher`(`name`, `surname`) VALUES ('%s','%s')", name, surname);
+        Statement st = connection.createStatement();
+        if (st.executeUpdate(query) != 0)
+            System.out.println("Il professore è stato aggiunto al database!");
+        if (connection != null) {
+                connection.close();
         }
     }
 
-    public static void removeTeacher(int teacherId) {
+    public static void removeTeacher(int teacherId) throws SQLException {
         Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(url1, user, password);
-            if (connection != null) {
-                System.out.println("Connected to the database");
-            }
-            String query = String.format("DELETE FROM docenti WHERE id = %d", teacherId);
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+            String query = String.format("DELETE FROM teacher WHERE id = %d", teacherId);
             Statement st = connection.createStatement();
             if (st.executeUpdate(query) != 0)
                 System.out.println("Il professore con id = " + teacherId + " è stato rimosso dal database!");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
             if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
+                connection.close();
             }
         }
     }
 
-    public static void insertAvailableReservation(int id_teacher, int id_course, String date, String time) {
+    public static void insertAvailableReservation(int id_teacher, int id_course, String date, String time) throws SQLException{
         Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(url1, user, password);
-            if (connection != null) {
-                System.out.println("Connected to the database");
-            }
-            String query = String.format("INSERT INTO reservation_available (id_teacher, id_course, date, time) VALUES (%d,%d,'%s','%s')", id_teacher, id_course, date, time);
-            Statement st = connection.createStatement();
-            if (st.executeUpdate(query) != 0)
-                System.out.println("La prenotazione è stata aggiunta al database!");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
-            }
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
         }
+        String query = String.format("INSERT INTO reservation_available (id_teacher, id_course, date, time) VALUES (%d,%d,'%s','%s')", id_teacher, id_course, date, time);
+        Statement st = connection.createStatement();
+        if (st.executeUpdate(query) != 0)
+            System.out.println("La prenotazione è stata aggiunta al database!");
+        if (connection != null)
+            connection.close();
     }
 
-    public static void removeAvailableReservation(int idAvailableReservation) {
+    public static void removeAvailableReservation(int idAvailableReservation) throws SQLException {
         Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(url1, user, password);
-            if (connection != null) {
-                System.out.println("Connected to the database");
-            }
-            String query = String.format("DELETE FROM reservation_available WHERE id = %d", idAvailableReservation);
-            Statement st = connection.createStatement();
-            if (st.executeUpdate(query) != 0)
-                System.out.println("La prenotazione con id = " + idAvailableReservation + " è stato rimossa dal database!");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
-            }
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
         }
+        String query = String.format("DELETE FROM reservation_available WHERE id = %d", idAvailableReservation);
+        Statement st = connection.createStatement();
+        if (st.executeUpdate(query) != 0)
+            System.out.println("La prenotazione con id = " + idAvailableReservation + " è stato rimossa dal database!");
+        if (connection != null)
+            connection.close();
     }
 
     public static String getUserRole(int userId) {

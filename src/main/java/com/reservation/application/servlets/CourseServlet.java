@@ -1,0 +1,82 @@
+package com.reservation.application.servlets;
+
+import com.google.gson.Gson;
+import com.reservation.application.dao.DAO;
+import com.reservation.application.entities.Course;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.List;
+
+@WebServlet(name = "CourseServlet", value = "/course")
+public class CourseServlet extends HttpServlet {
+
+    public void init(ServletConfig config) {
+        try {
+            super.init(config);
+            ServletContext ctx = config.getServletContext();
+            String url = ctx.getInitParameter("url");
+            String user = ctx.getInitParameter("user");
+            String password = ctx.getInitParameter("password");
+            DAO.registerDriver(url, user, password);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        List<Course> courses = DAO.getCourses();
+        Gson gson = new Gson();
+        String toJson = gson.toJson(courses);
+        out.println(toJson);
+        out.flush();
+        out.close();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
+        try {
+            String title = request.getParameter("title");
+            DAO.insertCourses(title);
+            out.println("Inserimento effettuato");
+        } catch (NumberFormatException e) {
+            out.println("Inserire un numero valido");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            out.println(e.getMessage());
+        }
+        out.flush();
+        out.close();
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/plain");
+        PrintWriter out = response.getWriter();
+        try {
+            int idCourse = Integer.parseInt(request.getParameter("idCourse"));
+            DAO.removeCourses(idCourse);
+            out.println("Corso rimosso");
+        } catch (NumberFormatException e) {
+            out.println("Inserire un numero valido");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            out.println(e.getMessage());
+        }
+        out.flush();
+        out.close();
+    }
+}
