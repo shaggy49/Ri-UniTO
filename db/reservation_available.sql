@@ -62,6 +62,7 @@ INSERT INTO `reservation_available` (`id`, `id_teacher`, `id_course`, `date`, `t
 ALTER TABLE `reservation_available`
   ADD CONSTRAINT `reservation_course_course_id` FOREIGN KEY (`id_course`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `reservation_teacher_teacher_id` FOREIGN KEY (`id_teacher`) REFERENCES `teacher` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT reservation_available_pk UNIQUE (id_teacher, id_course, date, time);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
