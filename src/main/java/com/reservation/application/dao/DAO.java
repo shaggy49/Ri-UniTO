@@ -154,7 +154,7 @@ public class DAO {
 
     }
 
-    public static List<ReservationRequested> getRequestedReservations(int idUser) {
+    public static List<ReservationRequested> getRequestedReservations() {
         Connection connection = null;
         ArrayList<ReservationRequested> out = new ArrayList<>();
         try {
@@ -163,10 +163,9 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = String.format(
+            String query = "" +
                     "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
-                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id " +
-                    "WHERE id_user = '%d'", idUser);
+                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id;";
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
@@ -198,7 +197,7 @@ public class DAO {
         return out;
     }
 
-    public static List<ReservationRequested> getRequestedReservations() {
+    public static List<ReservationRequested> getRequestedReservationsByUserMail(String email) {
         Connection connection = null;
         ArrayList<ReservationRequested> out = new ArrayList<>();
         try {
@@ -207,9 +206,10 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = "" +
+            String query = String.format(
                     "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
-                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id;";
+                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id " +
+                    "WHERE email = '%s';", email);
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
@@ -418,4 +418,5 @@ public class DAO {
         }
         return role;
     }
+
 }
