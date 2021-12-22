@@ -398,32 +398,23 @@ public class DAO {
             connection.close();
     }
 
-    public static String getUserRole(int userId) {
+    public static String getUserRole(String email, String pword) throws SQLException {
         Connection connection = null;
         String role = "";
-        try {
-            connection = DriverManager.getConnection(url1, user, password);
-            if (connection != null) {
-                System.out.println("Connected to the database");
-            }
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
 
-            String query = String.format("SELECT `role` FROM `user` WHERE id = %d", userId);
+        String query = String.format("SELECT `role` FROM `user` WHERE email = '%s' and password = '%s'", email, pword);
 
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery(query);
-            if (rs.next()) {
-                role = rs.getString("role");
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
-            }
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(query);
+        if (rs.next()) {
+            role = rs.getString("role");
+        }
+        if (connection != null) {
+                connection.close();
         }
         return role;
     }
