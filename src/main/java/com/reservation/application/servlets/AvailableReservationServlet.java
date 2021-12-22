@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -54,19 +55,30 @@ public class AvailableReservationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
-        try {
-            int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
-            int idCourse = Integer.parseInt(request.getParameter("idCourse"));
-            String date = request.getParameter("date");
-            String time = request.getParameter("time");
-            DAO.insertAvailableReservation(idTeacher, idCourse, date, time);
-            out.println("Inserimento effettuato");
-        } catch (NumberFormatException e) {
-            out.println("Inserire un numero valido");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            out.println(e.getMessage());
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            try {
+                int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
+                int idCourse = Integer.parseInt(request.getParameter("idCourse"));
+                String date = request.getParameter("date");
+                String time = request.getParameter("time");
+                DAO.insertAvailableReservation(idTeacher, idCourse, date, time);
+                out.println("Inserimento effettuato");
+            } catch (NumberFormatException e) {
+                out.println("Inserire un numero valido");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                out.println(e.getMessage());
+            }
         }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }
@@ -79,28 +91,39 @@ public class AvailableReservationServlet extends HttpServlet {
          * perché questi endpoint diventano difficili da gestire da android se il testo restituito è un html
          * */
         PrintWriter out = response.getWriter();
-        try {
-            int idReservationAvailable = Integer.parseInt(request.getParameter("idReservationAvailable"));
-            int idUser = Integer.parseInt(request.getParameter("idUser"));
-            DAO.bookRequestedReservation(idReservationAvailable, idUser);
-            out.println("Trasformazione eseguita");
-        } catch (SQLException e) {
-            String messageToPrint = "";
-            if(e.getMessage().equals("noresfound"))
-                messageToPrint = "La prenotazione non risulta presente";
-            else if(!e.getMessage().contains("$"))
-                messageToPrint = e.getMessage();
-            else{
-                String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));
-                if (errorMessage.equals("teacherunique"))
-                    messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
-                else if (errorMessage.equals("userunique"))
-                    messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin") || role.equals("user")){
+            try {
+                int idReservationAvailable = Integer.parseInt(request.getParameter("idReservationAvailable"));
+                int idUser = Integer.parseInt(request.getParameter("idUser"));
+                DAO.bookRequestedReservation(idReservationAvailable, idUser);
+                out.println("Trasformazione eseguita");
+            } catch (SQLException e) {
+                String messageToPrint = "";
+                if(e.getMessage().equals("noresfound"))
+                    messageToPrint = "La prenotazione non risulta presente";
+                else if(!e.getMessage().contains("$"))
+                    messageToPrint = e.getMessage();
+                else{
+                    String errorMessage = e.getMessage().substring(e.getMessage().indexOf("$") + 1, e.getMessage().lastIndexOf("$"));
+                    if (errorMessage.equals("teacherunique"))
+                        messageToPrint = "Il professore selezionato ha già una prenotazione attiva per quell'ora";
+                    else if (errorMessage.equals("userunique"))
+                        messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
+                }
+                out.println(messageToPrint);
+            } catch (NumberFormatException e) {
+                out.println("Inserire un numero valido");
             }
-            out.println(messageToPrint);
-        } catch (NumberFormatException e) {
-            out.println("Inserire un numero valido");
         }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }
@@ -109,16 +132,27 @@ public class AvailableReservationServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
-        try {
-            int idAvailableReservation = Integer.parseInt(request.getParameter("idAvailableReservation"));
-            DAO.removeAvailableReservation(idAvailableReservation);
-            out.println("Prenotazione rimossa");
-        } catch (NumberFormatException e) {
-            out.println("Inserire un numero valido");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            out.println(e.getMessage());
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            try {
+                int idAvailableReservation = Integer.parseInt(request.getParameter("idAvailableReservation"));
+                DAO.removeAvailableReservation(idAvailableReservation);
+                out.println("Prenotazione rimossa");
+            } catch (NumberFormatException e) {
+                out.println("Inserire un numero valido");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                out.println(e.getMessage());
+            }
         }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }
