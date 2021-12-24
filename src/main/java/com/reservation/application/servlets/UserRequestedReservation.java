@@ -48,7 +48,7 @@ public class UserRequestedReservation extends HttpServlet {
         String email = (String) session.getAttribute("email");
 
         if(email == null || email == "guest"){
-            out.println("You must log in to see your reservations");
+            out.println("Accedi per vedere le tue prenotazioni");
             throw new ServletException();
         }
         else{

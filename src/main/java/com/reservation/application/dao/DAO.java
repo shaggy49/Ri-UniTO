@@ -285,6 +285,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println(title + " è stato aggiunto al database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessun corso è stato aggiunto");
+        }
         if (connection != null) {
                 connection.close();
         }
@@ -300,6 +304,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("Il corso con id = " + courseId + " è stato eliminato dal database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessun corso è stato rimosso");
+        }
         if (connection != null) {
                 connection.close();
         }
@@ -350,6 +358,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("Il professore è stato aggiunto al database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessun professore è stato inserito");
+        }
         if (connection != null) {
                 connection.close();
         }
@@ -364,6 +376,10 @@ public class DAO {
             Statement st = connection.createStatement();
             if (st.executeUpdate(query) != 0)
                 System.out.println("Il professore con id = " + teacherId + " è stato rimosso dal database!");
+            else {
+                connection.close();
+                throw new SQLException("Nessun docente è stato rimosso");
+            }
             if (connection != null) {
                 connection.close();
             }
@@ -380,6 +396,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("La prenotazione è stata aggiunta al database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessuna prenotazione è stata aggiunta");
+        }
         if (connection != null)
             connection.close();
     }
@@ -394,6 +414,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("La prenotazione con id = " + idAvailableReservation + " è stato rimossa dal database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessuna prenotazione è stata rimossa");
+        }
         if (connection != null)
             connection.close();
     }

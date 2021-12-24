@@ -69,9 +69,11 @@ public class AvailableReservationServlet extends HttpServlet {
                 DAO.insertAvailableReservation(idTeacher, idCourse, date, time);
                 out.println("Inserimento effettuato");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
                 e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 out.println(e.getMessage());
             }
         }
@@ -143,9 +145,11 @@ public class AvailableReservationServlet extends HttpServlet {
                 DAO.removeAvailableReservation(idAvailableReservation);
                 out.println("Prenotazione rimossa");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
                 e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
                 out.println(e.getMessage());
             }
         }

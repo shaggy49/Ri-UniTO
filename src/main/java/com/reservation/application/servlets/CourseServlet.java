@@ -71,9 +71,11 @@ public class CourseServlet extends HttpServlet {
                 DAO.insertCourses(title);
                 out.println("Inserimento effettuato");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
                 e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 out.println(e.getMessage());
             }
         }
@@ -100,9 +102,11 @@ public class CourseServlet extends HttpServlet {
                 DAO.removeCourses(idCourse);
                 out.println("Corso rimosso");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
                 e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
                 out.println(e.getMessage());
             }
         }

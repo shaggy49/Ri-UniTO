@@ -72,9 +72,11 @@ public class TeacherServlet extends HttpServlet {
                 DAO.insertTeacher(name, surname);
                 out.println("Inserimento effettuato");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
                 e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 out.println(e.getMessage());
             }
         }
@@ -101,16 +103,17 @@ public class TeacherServlet extends HttpServlet {
                 DAO.removeTeacher(idTeacher);
                 out.println("Docente rimosso");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
                 e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
                 out.println(e.getMessage());
             }
         }
         else{
             out.println("Non puoi compiere questa azione");
         }
-
         out.flush();
         out.close();
     }
