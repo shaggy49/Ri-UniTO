@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -37,10 +38,21 @@ public class RequestedReservationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
-        List<ReservationRequested> requestedReservations = DAO.getRequestedReservations();
-        Gson gson = new Gson();
-        String toJson = gson.toJson(requestedReservations);
-        out.println(toJson);
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            List<ReservationRequested> requestedReservations = DAO.getRequestedReservations();
+            Gson gson = new Gson();
+            String toJson = gson.toJson(requestedReservations);
+            out.println(toJson);
+        }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }
@@ -52,17 +64,28 @@ public class RequestedReservationServlet extends HttpServlet {
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
-        try {
-            int requestedReservation = Integer.parseInt(request.getParameter("idRequestedReservation"));
-            String status = request.getParameter("status");
-            DAO.setReservationState(requestedReservation, status);
-            out.println("Prenotazione modificata");
-        } catch (NumberFormatException e) {
-            out.println("Inserire un numero valido");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            out.println(e.getMessage());
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin") || role.equals("user")){
+            try {
+                int requestedReservation = Integer.parseInt(request.getParameter("idRequestedReservation"));
+                String status = request.getParameter("status");
+                DAO.setReservationState(requestedReservation, status);
+                out.println("Prenotazione modificata");
+            } catch (NumberFormatException e) {
+                out.println("Inserire un numero valido");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                out.println(e.getMessage());
+            }
         }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }

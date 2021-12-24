@@ -154,7 +154,7 @@ public class DAO {
 
     }
 
-    public static List<ReservationRequested> getRequestedReservations(int idUser) {
+    public static List<ReservationRequested> getRequestedReservations() {
         Connection connection = null;
         ArrayList<ReservationRequested> out = new ArrayList<>();
         try {
@@ -163,10 +163,9 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = String.format(
+            String query = "" +
                     "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
-                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id " +
-                    "WHERE id_user = '%d'", idUser);
+                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id;";
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
@@ -198,7 +197,7 @@ public class DAO {
         return out;
     }
 
-    public static List<ReservationRequested> getRequestedReservations() {
+    public static List<ReservationRequested> getRequestedReservationsByUserMail(String email) {
         Connection connection = null;
         ArrayList<ReservationRequested> out = new ArrayList<>();
         try {
@@ -207,9 +206,10 @@ public class DAO {
                 System.out.println("Connected to the database");
             }
 
-            String query = "" +
+            String query = String.format(
                     "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
-                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id;";
+                    "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id " +
+                    "WHERE email = '%s';", email);
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
@@ -285,6 +285,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println(title + " è stato aggiunto al database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessun corso è stato aggiunto");
+        }
         if (connection != null) {
                 connection.close();
         }
@@ -300,6 +304,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("Il corso con id = " + courseId + " è stato eliminato dal database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessun corso è stato rimosso");
+        }
         if (connection != null) {
                 connection.close();
         }
@@ -350,6 +358,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("Il professore è stato aggiunto al database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessun professore è stato inserito");
+        }
         if (connection != null) {
                 connection.close();
         }
@@ -364,6 +376,10 @@ public class DAO {
             Statement st = connection.createStatement();
             if (st.executeUpdate(query) != 0)
                 System.out.println("Il professore con id = " + teacherId + " è stato rimosso dal database!");
+            else {
+                connection.close();
+                throw new SQLException("Nessun docente è stato rimosso");
+            }
             if (connection != null) {
                 connection.close();
             }
@@ -380,6 +396,10 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("La prenotazione è stata aggiunta al database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessuna prenotazione è stata aggiunta");
+        }
         if (connection != null)
             connection.close();
     }
@@ -394,37 +414,33 @@ public class DAO {
         Statement st = connection.createStatement();
         if (st.executeUpdate(query) != 0)
             System.out.println("La prenotazione con id = " + idAvailableReservation + " è stato rimossa dal database!");
+        else {
+            connection.close();
+            throw new SQLException("Nessuna prenotazione è stata rimossa");
+        }
         if (connection != null)
             connection.close();
     }
 
-    public static String getUserRole(int userId) {
+    public static String getUserRole(String email, String pword) throws SQLException {
         Connection connection = null;
         String role = "";
-        try {
-            connection = DriverManager.getConnection(url1, user, password);
-            if (connection != null) {
-                System.out.println("Connected to the database");
-            }
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
 
-            String query = String.format("SELECT `role` FROM `user` WHERE id = %d", userId);
+        String query = String.format("SELECT `role` FROM `user` WHERE email = '%s' and password = '%s'", email, pword);
 
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery(query);
-            if (rs.next()) {
-                role = rs.getString("role");
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e2) {
-                    System.out.println(e2.getMessage());
-                }
-            }
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(query);
+        if (rs.next()) {
+            role = rs.getString("role");
+        }
+        if (connection != null) {
+                connection.close();
         }
         return role;
     }
+
 }

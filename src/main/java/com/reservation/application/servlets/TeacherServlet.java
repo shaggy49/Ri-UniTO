@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -36,10 +37,21 @@ public class TeacherServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
-        List<Teacher> teachers = DAO.getTeachers();
-        Gson gson = new Gson();
-        String toJson = gson.toJson(teachers);
-        out.println(toJson);
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            List<Teacher> teachers = DAO.getTeachers();
+            Gson gson = new Gson();
+            String toJson = gson.toJson(teachers);
+            out.println(toJson);
+        }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }
@@ -48,17 +60,30 @@ public class TeacherServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
-        try {
-            String name = request.getParameter("name");
-            String surname = request.getParameter("surname");
-            DAO.insertTeacher(name, surname);
-            out.println("Inserimento effettuato");
-        } catch (NumberFormatException e) {
-            out.println("Inserire un numero valido");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            out.println(e.getMessage());
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            try {
+                String name = request.getParameter("name");
+                String surname = request.getParameter("surname");
+                DAO.insertTeacher(name, surname);
+                out.println("Inserimento effettuato");
+            } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("Inserire un numero valido");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.println(e.getMessage());
+            }
         }
+        else{
+            out.println("Non puoi compiere questa azione");
+        }
+
         out.flush();
         out.close();
     }
@@ -67,15 +92,27 @@ public class TeacherServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();
-        try {
-            int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
-            DAO.removeTeacher(idTeacher);
-            out.println("Docente rimosso");
-        } catch (NumberFormatException e) {
-            out.println("Inserire un numero valido");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            out.println(e.getMessage());
+
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            try {
+                int idTeacher = Integer.parseInt(request.getParameter("idTeacher"));
+                DAO.removeTeacher(idTeacher);
+                out.println("Docente rimosso");
+            } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.println("Inserire un numero valido");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                out.println(e.getMessage());
+            }
+        }
+        else{
+            out.println("Non puoi compiere questa azione");
         }
         out.flush();
         out.close();
