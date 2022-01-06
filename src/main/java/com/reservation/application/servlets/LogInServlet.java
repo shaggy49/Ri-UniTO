@@ -53,7 +53,7 @@ public class LogInServlet extends HttpServlet {
                 session.setAttribute("role", "guest");
             }
             else{
-                out.println(String.format("Ruolo = %s",role));
+                out.println(String.format("{\"role\": \"%s\"}",role));
                 session.setAttribute("role", role);
             }
             session.setAttribute("email", email);

@@ -69,7 +69,7 @@ public class RequestedReservationServlet extends HttpServlet {
 
         String role = (String) session.getAttribute("role");
 
-        if(role != null && role.equals("admin") || role.equals("user")){
+        if(role != null && (role.equals("admin") || role.equals("user"))){
             try {
                 int requestedReservation = Integer.parseInt(request.getParameter("idRequestedReservation"));
                 String status = request.getParameter("status");
