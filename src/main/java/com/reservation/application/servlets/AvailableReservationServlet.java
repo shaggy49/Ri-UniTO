@@ -78,6 +78,7 @@ public class AvailableReservationServlet extends HttpServlet {
             }
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 
@@ -98,7 +99,7 @@ public class AvailableReservationServlet extends HttpServlet {
 
         String role = (String) session.getAttribute("role");
 
-        if(role != null && role.equals("admin") || role.equals("user")){
+        if(role != null && (role.equals("admin") || role.equals("user"))){
             try {
                 int idReservationAvailable = Integer.parseInt(request.getParameter("idReservationAvailable"));
                 int idUser = Integer.parseInt(request.getParameter("idUser"));
@@ -117,13 +118,16 @@ public class AvailableReservationServlet extends HttpServlet {
                     else if (errorMessage.equals("userunique"))
                         messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
                 }
+                out.println(HttpServletResponse.SC_CONFLICT);
                 out.println(messageToPrint);
             } catch (NumberFormatException e) {
+                response.setStatus(422);//Unprocessable Entity
                 out.println("Inserire un numero valido");
             }
         }
         else{
-            out.println("Non puoi compiere questa azione");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            out.println("Devi aver effettuato l'accesso.");
         }
 
         out.flush();
@@ -154,6 +158,7 @@ public class AvailableReservationServlet extends HttpServlet {
             }
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 

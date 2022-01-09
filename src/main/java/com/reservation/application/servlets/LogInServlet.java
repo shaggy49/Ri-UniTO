@@ -45,10 +45,12 @@ public class LogInServlet extends HttpServlet {
             try {
                 role = DAO.getUserRole(email, password);
             } catch (SQLException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 e.printStackTrace();
                 out.println(e.getMessage());
             }
             if(role.equals("")){
+
                 out.println("Nessun account trovato");
                 session.setAttribute("role", "guest");
             }

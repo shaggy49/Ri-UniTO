@@ -49,6 +49,7 @@ public class CourseServlet extends HttpServlet {
             out.println(toJson);
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 
@@ -80,6 +81,7 @@ public class CourseServlet extends HttpServlet {
             }
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 
@@ -111,6 +113,7 @@ public class CourseServlet extends HttpServlet {
             }
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 

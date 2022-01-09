@@ -48,7 +48,7 @@ public class UserRequestedReservation extends HttpServlet {
         String email = (String) session.getAttribute("email");
 
         if(email == null || email == "guest"){
-            response.setStatus(401);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Accedi per vedere le tue prenotazioni");
             //throw new ServletException();
         }

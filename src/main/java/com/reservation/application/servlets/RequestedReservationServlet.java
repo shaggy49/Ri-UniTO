@@ -50,6 +50,7 @@ public class RequestedReservationServlet extends HttpServlet {
             out.println(toJson);
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 
@@ -68,7 +69,9 @@ public class RequestedReservationServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         String role = (String) session.getAttribute("role");
-
+        String body = request.getReader().lines()
+                .reduce("", (accumulator, actual) -> accumulator + actual);
+        String requestID =request.getParameter("idRequestedReservation");
         if(role != null && (role.equals("admin") || role.equals("user"))){
             try {
                 int requestedReservation = Integer.parseInt(request.getParameter("idRequestedReservation"));
@@ -76,14 +79,17 @@ public class RequestedReservationServlet extends HttpServlet {
                 DAO.setReservationState(requestedReservation, status);
                 out.println("Prenotazione modificata");
             } catch (NumberFormatException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
             } catch (SQLException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 e.printStackTrace();
                 out.println(e.getMessage());
             }
         }
         else{
-            out.println("Non puoi compiere questa azione");
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
+            out.println("Devi aver effettuato l'accesso.");
         }
 
         out.flush();

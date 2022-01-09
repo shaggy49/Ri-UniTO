@@ -81,6 +81,7 @@ public class TeacherServlet extends HttpServlet {
             }
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
 
@@ -112,6 +113,7 @@ public class TeacherServlet extends HttpServlet {
             }
         }
         else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
         out.flush();
