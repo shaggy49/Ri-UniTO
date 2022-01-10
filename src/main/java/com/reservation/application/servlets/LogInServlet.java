@@ -42,8 +42,10 @@ public class LogInServlet extends HttpServlet {
 
         if(email != null && password != null){
             String role = null;
+            int uID=-1;
             try {
                 role = DAO.getUserRole(email, password);
+                uID = DAO.getUserID(email, password);
             } catch (SQLException e) {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 e.printStackTrace();
@@ -57,6 +59,7 @@ public class LogInServlet extends HttpServlet {
             else{
                 out.println(String.format("{\"role\": \"%s\"}",role));
                 session.setAttribute("role", role);
+                session.setAttribute("uID", uID);
             }
             session.setAttribute("email", email);
             out.flush();
