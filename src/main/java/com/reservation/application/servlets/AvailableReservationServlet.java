@@ -102,7 +102,7 @@ public class AvailableReservationServlet extends HttpServlet {
         if(role != null && (role.equals("admin") || role.equals("user"))){
             try {
                 int idReservationAvailable = Integer.parseInt(request.getParameter("idReservationAvailable"));
-                int idUser = Integer.parseInt(request.getParameter("idUser"));
+                int idUser = (Integer) session.getAttribute("uID");
                 DAO.bookRequestedReservation(idReservationAvailable, idUser);
                 out.println("Trasformazione eseguita");
             } catch (SQLException e) {
