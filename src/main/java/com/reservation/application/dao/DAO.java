@@ -442,5 +442,25 @@ public class DAO {
         }
         return role;
     }
+    public static int getUserID(String email, String pword) throws SQLException {
+        Connection connection = null;
+        int uID = -1;
+        connection = DriverManager.getConnection(url1, user, password);
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
+
+        String query = String.format("SELECT `id` FROM `user` WHERE email = '%s' and password = '%s'", email, pword);
+
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(query);
+        if (rs.next()) {
+            uID = rs.getInt("id");
+        }
+        if (connection != null) {
+                connection.close();
+        }
+        return uID;
+    }
 
 }
