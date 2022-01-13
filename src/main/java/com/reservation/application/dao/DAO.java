@@ -50,7 +50,8 @@ public class DAO {
 
             String query = "" +
                     "SELECT reservation_available.id as res_id, t.id as teacher_id, name, surname, c.id as course_id ,title, date, time " +
-                    "FROM reservation_available join course c on reservation_available.id_course = c.id join teacher t on t.id = reservation_available.id_teacher";
+                    "FROM reservation_available join course c on reservation_available.id_course = c.id join teacher t on t.id = reservation_available.id_teacher "+
+                    "ORDER BY date,time asc";
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
