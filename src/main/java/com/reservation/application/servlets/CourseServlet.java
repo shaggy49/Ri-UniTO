@@ -69,8 +69,13 @@ public class CourseServlet extends HttpServlet {
         if(role != null && role.equals("admin")){
             try {
                 String title = request.getParameter("title");
-                DAO.insertCourses(title);
-                out.println("Inserimento effettuato");
+                if(title!=null && title.length()>0){
+                    DAO.insertCourses(title);
+                    out.println("Inserimento effettuato");
+                }else{
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.println("Inserire un nome valido");
+                }
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
