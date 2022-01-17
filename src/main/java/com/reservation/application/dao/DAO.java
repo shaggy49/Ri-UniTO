@@ -350,7 +350,8 @@ public class DAO {
             String query = String.format(
                     "SELECT reservation_requested.id as res_id, u.id as user_id, email, t.id as teacher_id, name, surname, c.id as course_id ,title, rdate, rtime, status " +
                     "FROM reservation_requested join course c on c.id = reservation_requested.id_course join teacher t on reservation_requested.id_teacher = t.id join user u on reservation_requested.id_user = u.id " +
-                    "WHERE email = '%s';", email);
+                    "WHERE email = '%s'" +
+                    "ORDER BY rdate,rtime asc;", email);
 
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
