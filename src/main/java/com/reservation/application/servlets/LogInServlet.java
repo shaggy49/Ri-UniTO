@@ -1,6 +1,9 @@
 package com.reservation.application.servlets;
 
+import com.google.gson.Gson;
 import com.reservation.application.dao.DAO;
+import com.reservation.application.entities.ReservationRequested;
+import com.reservation.application.entities.User;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -13,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.List;
 
 @WebServlet(name = "LogInServlet", value = "/log-in")
 public class LogInServlet extends HttpServlet {
@@ -68,5 +72,27 @@ public class LogInServlet extends HttpServlet {
 
     }
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
 
+        HttpSession session = request.getSession();
+
+        String role = (String) session.getAttribute("role");
+
+        if(role != null && role.equals("admin")){
+            List<User> userList = DAO.getUsers();
+            Gson gson = new Gson();
+            String toJson = gson.toJson(userList);
+            out.println(toJson);
+        }
+        else{
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            out.println("Non puoi compiere questa azione");
+        }
+
+        out.flush();
+        out.close();
+    }
 }
