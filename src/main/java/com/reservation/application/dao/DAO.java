@@ -38,6 +38,94 @@ public class DAO {
 //DONE-insertAvailableReservation(int id_teacher, int id_course, String date, String time)
 //DONE-removeAvailableReservation(int id_reservationAvailable)
 //DONE-getUserRole(String email, String password) lo mette in sessione utente
+    //* chiamabili solo dalle sezioni già prenotate
+    //da admin e prenotazioni
+    private static int checkUserBusyByReservationID(int idReservationRequested, Statement st, String action) throws SQLException{
+        String checkForOtherUniqueStatus  =
+                String.format(
+                        "select COUNT('status') as is_unique " +
+                                "from reservation_requested A INNER join reservation_requested B on A.rdate = B.rdate and A.rtime = B.rtime AND B.id = %d " +
+                                "where A.id_user = B.id_user and " +
+                                "(A.status = 'completed' or A.status= 'booked')",
+                        idReservationRequested
+
+                );
+        if(action.equals("completed")) {
+            checkForOtherUniqueStatus =String.format(
+                            "select COUNT('status') as is_unique " +
+                                    "from reservation_requested A INNER join reservation_requested B on A.rdate = B.rdate and A.rtime = B.rtime AND A.id = %d AND B.id=A.id " +
+                                    "where A.id_user = B.id_user and " +
+                                    "(A.status= 'booked')",
+                            idReservationRequested
+
+                    );
+        }
+        ResultSet rs = st.executeQuery(checkForOtherUniqueStatus);
+        int completedOrBookedReservations = 0;
+        while (rs.next()) {
+            completedOrBookedReservations = rs.getInt("is_unique");
+        }
+        return completedOrBookedReservations;
+    }
+    //DA PAGINA PRENOTA
+    private static int checkUserBusyByReservationIDBooking(int idReservationRequested, Statement st, int id_user) throws SQLException{
+        String checkForOtherUniqueStatus =
+                String.format(
+                        "select COUNT('id') as is_unique " +
+                                "from reservation_available A INNER join reservation_requested B on A.date = B.rdate and A.time = B.rtime and B.id_user=%d AND A.id = %d " +
+                                "where " +
+                                "B.status = 'completed' or B.status= 'booked'",
+                        id_user,
+                        idReservationRequested
+
+                );
+        ResultSet rs = st.executeQuery(checkForOtherUniqueStatus);
+        int completedOrBookedReservations = 0;
+        while (rs.next()) {
+            completedOrBookedReservations = rs.getInt("is_unique");
+        }
+        return completedOrBookedReservations;
+    }
+    private static boolean checkTeacherBusyByReservationIDBooking(int idReservationRequested, Statement st) throws SQLException{
+        String checkTeacherBusy =
+                String.format(
+                        "select COUNT('id') as is_unique\n" +
+                                "\tfrom reservation_available A INNER join reservation_requested B on A.date = B.rdate and A.time = B.rtime and A.id_teacher=B.id_teacher AND A.id = %d\n" +
+                                "\twhere \n" +
+                                "    B.status = 'completed' or B.status= 'booked'",
+                        idReservationRequested
+
+                );
+        ResultSet rs = st.executeQuery(checkTeacherBusy);
+        int completedOrBookedReservations = 0;
+        while (rs.next()) {
+            completedOrBookedReservations = rs.getInt("is_unique");
+        }
+        if (completedOrBookedReservations > 0)
+            return true;
+        else
+            return false;
+    }
+    private static boolean checkTeacherBusyByReservationID(int idReservationRequested, Statement st) throws SQLException{
+        String checkTeacherBusy =
+                String.format(
+                        "select COUNT('status') as is_unique " +
+                                "from reservation_requested A INNER join reservation_requested B on A.rdate = B.rdate and A.rtime = B.rtime AND B.id = %d " +
+                                "where A.id_teacher = B.id_teacher and " +
+                                "(A.status = 'completed' or A.status= 'booked')",
+                        idReservationRequested
+
+                );
+        ResultSet rs = st.executeQuery(checkTeacherBusy);
+        int completedOrBookedReservations = 0;
+        while (rs.next()) {
+            completedOrBookedReservations = rs.getInt("is_unique");
+        }
+        if (completedOrBookedReservations > 1)
+            return true;
+        else
+            return false;
+    }    //* chiamabili solo dalle sezioni già prenotate
 
     public static List<ReservationAvailable> getAvailableReservations() {
         Connection connection = null;
@@ -86,7 +174,7 @@ public class DAO {
      * cancella la tupla X dalla relazione available e aggiunge una tupla Y alla relazione requested con
      * l'aggiunta dell'id_user, modificando lo state in prenotata
      */
-    public static void bookRequestedReservation(int id_reservationAvailable, int id_user) throws SQLException {
+    public static void bookRequestedReservation(int id_reservationAvailable, int id_user) throws Exception {
         Connection connection = null;
         connection = DriverManager.getConnection(url1, user, password);
         int count = 0;
@@ -99,6 +187,22 @@ public class DAO {
         String insertToResRequested = "";
         Statement st = connection.createStatement();
         Statement stDML = connection.createStatement();
+
+
+        if (checkTeacherBusyByReservationIDBooking(id_reservationAvailable, st)) {
+            if (connection != null) {
+                connection.close();
+            }
+            throw new Exception("L'insegnante è già impegnato in una prenotazione per questo giorno a quest'ora");
+        }
+        if (checkUserBusyByReservationIDBooking(id_reservationAvailable, st, id_user)>0) {
+            if (connection != null) {
+                connection.close();
+            }
+            throw new Exception("Sei già impegnato in una prenotazione per questo giorno a quest'ora");
+        }
+
+
         ResultSet rsReservationAvailable = st.executeQuery(queryFromResAvailable);
 
         while (rsReservationAvailable.next()) {
@@ -131,17 +235,53 @@ public class DAO {
         }
     }
 
-    public static void setReservationState(int idReservationRequested, String stateToUpdate) throws SQLException {
+    public static void setReservationState(int idReservationRequested, String stateToUpdate) throws Exception {
         Connection connection = null;
         connection = DriverManager.getConnection(url1, user, password);
         if (connection != null) {
             System.out.println("Connected to the database");
         }
+        /*? controlla se l'utente della prenotazione con id x ha altre prenotazioni che hanno lo stato
+        *   completato o prenotato -> se l'utente x ha un'altra prenotazione prenotata o cancellata alle ore y, ricavata
+        *   dall'id di x allora il conter is_unique sarà maggiore di 0
+        */
+
 
         String queryUpdateResRequested = String.format("UPDATE reservation_requested SET status = '%s' WHERE id = %d;", stateToUpdate, idReservationRequested);
 
         Statement st = connection.createStatement();
-
+        //stiamo cambiando lo stato di una prenotazione già fatta.
+        if(!stateToUpdate.equals("deleted")) {
+            if(stateToUpdate.equals("completed")) {
+                int nReservations = checkUserBusyByReservationID(idReservationRequested, st, "completed");
+                if (nReservations>1) {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                    throw new Exception("L'utente ha già una prenotazione completata per questo giorno a quest'ora");
+                }else if(nReservations==0){
+                    if (connection != null) {
+                        connection.close();
+                    }
+                    throw new Exception("L'utente non è prenotato a questo evento");
+                }
+            }else {
+                if (checkUserBusyByReservationID(idReservationRequested, st, "booked") > 0) {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                    throw new Exception("L'utente ha già una prenotazione attiva per questo giorno a quest'ora");
+                }
+            }
+        }
+        if(!stateToUpdate.equals("deleted")) {
+            if (checkTeacherBusyByReservationID(idReservationRequested, st)) {
+                if (connection != null) {
+                    connection.close();
+                }
+                throw new Exception("L'insegnante è già impegnato in una prenotazione per questo giorno a quest'ora");
+            }
+        }
         if (st.executeUpdate(queryUpdateResRequested) != 0)
             System.out.println("Lo stato della prenotazione è stato correttamente modificato!");
         else {
