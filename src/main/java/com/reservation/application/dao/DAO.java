@@ -282,9 +282,21 @@ public class DAO {
                 throw new Exception("L'insegnante è già impegnato in una prenotazione per questo giorno a quest'ora");
             }
         }
-        if (st.executeUpdate(queryUpdateResRequested) != 0)
-            System.out.println("Lo stato della prenotazione è stato correttamente modificato!");
-        else {
+        if (st.executeUpdate(queryUpdateResRequested) != 0) {
+            if (stateToUpdate.equals("deleted")){
+                String reinsertBooking = String.format("" +
+                                "INSERT INTO reservation_available (id_teacher, id_course, date, time)\n" +
+                                "SELECT id_teacher, id_course, rdate, rtime\n" +
+                                "FROM reservation_requested\n" +
+                                "WHERE reservation_requested.id = %d; ",
+                        idReservationRequested
+                );
+                if (st.executeUpdate(reinsertBooking) != 0)
+                    System.out.println("Lo stato della prenotazione è stato correttamente modificato ed è stata reinserita!");
+            }else{
+                System.out.println("Lo stato della prenotazione è stato correttamente modificato!");
+            }
+        }else {
             connection.close();
             throw new SQLException();
         }
@@ -323,6 +335,45 @@ public class DAO {
                 );
 
                 out.add(reservationRequested);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e2) {
+                    System.out.println(e2.getMessage());
+                }
+            }
+        }
+        return out;
+    }
+
+    public static List<User> getUsers() {
+        Connection connection = null;
+        ArrayList<User> out = new ArrayList<>();
+        try {
+            connection = DriverManager.getConnection(url1, user, password);
+            if (connection != null) {
+                System.out.println("Connected to the database");
+            }
+
+            String query = "" +
+                    "SELECT id as user_id, email " +
+                    "FROM user;";
+
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()) {
+
+                User user = new User(
+                        Integer.parseInt(rs.getString("user_id")),
+                        rs.getString("email")
+
+                );
+
+                out.add(user);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
