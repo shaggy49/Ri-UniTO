@@ -51,6 +51,7 @@ public class AvailableReservationServlet extends HttpServlet {
         out.close();
     }
 
+    //tutoring insertion -- admin only
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
@@ -118,11 +119,15 @@ public class AvailableReservationServlet extends HttpServlet {
                     else if (errorMessage.equals("userunique"))
                         messageToPrint = "L'utente selezionato ha già una prenotazione attiva per quell'ora";
                 }
-                out.println(HttpServletResponse.SC_CONFLICT);
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
                 out.println(messageToPrint);
             } catch (NumberFormatException e) {
                 response.setStatus(422);//Unprocessable Entity
                 out.println("Inserire un numero valido");
+            } catch (Exception e){
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                e.printStackTrace();
+                out.println(e.getMessage());
             }
         }
         else{
