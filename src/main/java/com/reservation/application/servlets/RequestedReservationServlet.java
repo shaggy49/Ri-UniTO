@@ -85,6 +85,10 @@ public class RequestedReservationServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 e.printStackTrace();
                 out.println(e.getMessage());
+            } catch (Exception e){
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                e.printStackTrace();
+                out.println(e.getMessage());
             }
         }
         else{
