@@ -52,7 +52,7 @@ public class LogInServlet extends HttpServlet {
                 out.println(e.getMessage());
             }
             if(role.equals("")){
-
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 out.println("Nessun account trovato");
                 session.setAttribute("role", "guest");
             }
