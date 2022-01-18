@@ -235,6 +235,37 @@ public class DAO {
         }
     }
 
+    public static boolean checkReservationOwner(int idRequestedReservation, int uID) throws SQLException{
+        Connection connection = null;
+        int amountOfItemsWithGivenID = 0;
+
+        connection = DriverManager.getConnection(url1, user, password);
+
+        if (connection != null) {
+            System.out.println("Connected to the database");
+        }
+
+        String query = String.format("select count(id) as ownedItemsWithID " +
+                "from reservation_requested " +
+                "where reservation_requested.id = %d " +
+                "and reservation_requested.id_user = %d",
+                idRequestedReservation, uID);
+
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(query);
+        if (rs.next()) {
+            amountOfItemsWithGivenID = rs.getInt("ownedItemsWithID");
+        }
+        if (connection != null) {
+            connection.close();
+        }
+        if(amountOfItemsWithGivenID >0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public static void setReservationState(int idReservationRequested, String stateToUpdate) throws Exception {
         Connection connection = null;
         connection = DriverManager.getConnection(url1, user, password);
