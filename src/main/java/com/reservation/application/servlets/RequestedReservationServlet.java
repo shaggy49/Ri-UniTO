@@ -69,15 +69,21 @@ public class RequestedReservationServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         String role = (String) session.getAttribute("role");
-        String body = request.getReader().lines()
-                .reduce("", (accumulator, actual) -> accumulator + actual);
-        String requestID =request.getParameter("idRequestedReservation");
+        int uid = (Integer) session.getAttribute("uID");
+
         if(role != null && (role.equals("admin") || role.equals("user"))){
             try {
                 int requestedReservation = Integer.parseInt(request.getParameter("idRequestedReservation"));
                 String status = request.getParameter("status");
-                DAO.setReservationState(requestedReservation, status);
-                out.println("Prenotazione modificata");
+
+                if(role.equals("admin") || DAO.checkReservationOwner(requestedReservation, uid)){
+                    DAO.setReservationState(requestedReservation, status);
+                    out.println("Prenotazione modificata");
+                }else{
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    out.println("Non puoi compiere questa azione");
+                }
+
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 out.println("Inserire un numero valido");
@@ -92,7 +98,7 @@ public class RequestedReservationServlet extends HttpServlet {
             }
         }
         else{
-            response.setStatus(HttpServletResponse.SC_CONFLICT);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Devi aver effettuato l'accesso.");
         }
 

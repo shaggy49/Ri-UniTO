@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @WebServlet(name = "CourseServlet", value = "/course")
 public class CourseServlet extends HttpServlet {
@@ -66,10 +67,16 @@ public class CourseServlet extends HttpServlet {
 
         String role = (String) session.getAttribute("role");
 
+        Pattern pattern = Pattern.compile("^(([A-Za-z][a-z])+((-| )?([A-z0-9]))*)$");
+
         if(role != null && role.equals("admin")){
             try {
+
                 String title = request.getParameter("title");
-                if(title!=null && title.length()>0){
+                boolean isTitleInCorrectFormat = pattern.matcher(title).matches();
+
+
+                if(title!=null && title.length()>0 && isTitleInCorrectFormat){
                     DAO.insertCourses(title);
                     out.println("Inserimento effettuato");
                 }else{

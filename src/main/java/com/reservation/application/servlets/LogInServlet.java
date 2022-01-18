@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @WebServlet(name = "LogInServlet", value = "/log-in")
 public class LogInServlet extends HttpServlet {
@@ -42,9 +43,12 @@ public class LogInServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
+        Pattern patternEmail = Pattern.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
+        boolean isEmailCorrectForm = patternEmail.matcher(email).matches();
+
         HttpSession session = request.getSession();
 
-        if(email != null && password != null){
+        if(email != null && password != null && isEmailCorrectForm){
             String role = null;
             int uID=-1;
             try {
@@ -68,6 +72,9 @@ public class LogInServlet extends HttpServlet {
             session.setAttribute("email", email);
             out.flush();
             out.close();
+        }else{
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.println("Inserire un email e una password validi.");
         }
 
     }
@@ -91,6 +98,19 @@ public class LogInServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.println("Non puoi compiere questa azione");
         }
+
+        out.flush();
+        out.close();
+    }
+
+    //logout function -> deletes httponly cookies storing session.
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
+        session.invalidate();
+        response.setStatus(HttpServletResponse.SC_OK);
 
         out.flush();
         out.close();

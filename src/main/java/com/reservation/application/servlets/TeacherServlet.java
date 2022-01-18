@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @WebServlet(name = "TeacherServlet", value = "/teacher")
 public class TeacherServlet extends HttpServlet {
@@ -65,15 +66,22 @@ public class TeacherServlet extends HttpServlet {
 
         String role = (String) session.getAttribute("role");
 
+        String name = request.getParameter("name");
+        String surname = request.getParameter("surname");
+
+        Pattern pattern = Pattern.compile("^([a-zA-Z])+(( ){1}[A-z]+)*$");
+        boolean isNameInCorrectFormat = pattern.matcher(name).matches();
+        boolean isSurnameInCorrectFormat = pattern.matcher(surname).matches();
+
         if(role != null && role.equals("admin")){
             try {
-                String name = request.getParameter("name");
-                String surname = request.getParameter("surname");
-                DAO.insertTeacher(name, surname);
-                out.println("Inserimento effettuato");
-            } catch (NumberFormatException e) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                out.println("Inserire un numero valido");
+                if(name!=null && surname!=null && isNameInCorrectFormat && isSurnameInCorrectFormat) {
+                    DAO.insertTeacher(name, surname);
+                    out.println("Inserimento effettuato");
+                }else{
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    out.println("Inserire un nome e un cognome validi.");
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
