@@ -106,7 +106,7 @@ public class DAO {
         else
             return false;
     }
-    private static boolean checkTeacherBusyByReservationID(int idReservationRequested, Statement st) throws SQLException{
+    private static int checkTeacherBusyByReservationID(int idReservationRequested, Statement st) throws SQLException{
         String checkTeacherBusy =
                 String.format(
                         "select COUNT('status') as is_unique " +
@@ -121,10 +121,7 @@ public class DAO {
         while (rs.next()) {
             completedOrBookedReservations = rs.getInt("is_unique");
         }
-        if (completedOrBookedReservations > 1)
-            return true;
-        else
-            return false;
+        return completedOrBookedReservations;
     }    //* chiamabili solo dalle sezioni già prenotate
 
     public static List<ReservationAvailable> getAvailableReservations() {
@@ -306,12 +303,22 @@ public class DAO {
             }
         }
         if(!stateToUpdate.equals("deleted")) {
-            if (checkTeacherBusyByReservationID(idReservationRequested, st)) {
-                if (connection != null) {
-                    connection.close();
+            if(stateToUpdate.equals("completed")) {
+                if (checkTeacherBusyByReservationID(idReservationRequested, st)>1) {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                    throw new Exception("L'insegnante è già impegnato in una prenotazione per questo giorno a quest'ora");
                 }
-                throw new Exception("L'insegnante è già impegnato in una prenotazione per questo giorno a quest'ora");
+            }else{
+                if (checkTeacherBusyByReservationID(idReservationRequested, st)>0) {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                    throw new Exception("L'insegnante è già impegnato in una prenotazione per questo giorno a quest'ora");
+                }
             }
+
         }
         if (st.executeUpdate(queryUpdateResRequested) != 0) {
             if (stateToUpdate.equals("deleted")){
